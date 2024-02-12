@@ -20,15 +20,24 @@ def clear_session():
     session['page_views'] = 0
     return {'message': '200: Successfully cleared session data.'}, 200
 
-@app.route('/articles')
-def index_articles():
 
-    pass
+# @app.route('/articles')
+# def index_articles():
+#     articles = Article.query.all()
+#     article_data = [{'id': article.id, 'title': article.title} for article in articles]
+#     return jsonify(article_data)
 
 @app.route('/articles/<int:id>')
 def show_article(id):
-
-    pass
+    session['page_views'] = session.get('page_views', 0) + 1  # Increment page views or initialize to 1 if first view
+    if session['page_views'] <= 3:
+        article = db.session.query(Article).get(id)
+        if article:
+            return jsonify({'title': article.title})
+        else:
+            return jsonify({'message': 'Article not found'}), 404
+    else:
+        return jsonify({'message': 'Maximum pageview limit reached'}), 401
 
 if __name__ == '__main__':
     app.run(port=5555)
